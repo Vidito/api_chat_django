@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block content %}
+    <h2 class="text-2xl font-bold mb-4">User Profile</h2>
+
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p> {# Assuming email is available on the User model #}
+
+    <h3 class="text-lg font-bold my-4" >API Keys</h3>
+
+    {% if user_api_keys %}
+        <p><strong>OMDB API Key:</strong> {{ user_api_keys.omdb_api_key|default:"Not set" }}</p>
+        <p><strong>WeatherAPI API Key:</strong> {{ user_api_keys.weatherapi_api_key|default:"Not set" }}</p>
+        {# Add other API keys here as needed #}
+    {% else %}
+        <p>No API keys have been saved for this user yet.</p>
+        <p><a href="{% url 'api_key_settings' %}">Add your API keys</a></p> {# Link to your API key setting page #}
+    {% endif %}
+
+    {# You can add more user information here if needed #}
+{% endblock %}

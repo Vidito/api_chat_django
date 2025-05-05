@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}OMDB Search{% endblock %}
+
+{% block content %}
+        <h1 class="text-3xl font-bold mb-4">Search Movies on OMDB</h1>
+
+        {% if error_message %}
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            {{ error_message }}
+          </div>
+        {% endif %}
+
+        <form method="post" class="mb-4  bg-gray-100 p-4 rounded-lg shadow-md">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Search</button>
+        </form>
+
+        {% if results %}
+          <h2 class="text-2xl font-bold mb-4">Search Results</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {% for movie in results %}
+              <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <img src="{{ movie.Poster }}" class="w-full h-56 object-cover" alt="{{ movie.Title }}" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x450?text=No+Image';">
+                <div class="p-4">
+                  <h5 class="text-lg font-semibold">{{ movie.Title }}</h5>
+                  <p class="text-gray-600">{{ movie.Year }}</p>
+                  {# You could add a link here to get more details about the movie #}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% elif request.method == 'POST' and not error_message %}
+           <p class="text-gray-600">No results found for your search term.</p>
+        {% endif %}
+
+        {% endblock %}

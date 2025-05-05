@@ -1,0 +1,64 @@
+<!-- base.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>{% block title %}My Awesome App{% endblock %}</title>
+</head>
+<body class="bg-gray-100 text-gray-800 max-w-xl m-auto">
+    <nav class="bg-gray-800 p-4">
+        <ul class="flex flex-col items-center md:flex-row space-y-2 md:space-y-0 md:space-x-4">
+            <li class="text-white text-lg font-bold">
+                <a href="{% url 'home' %}" class="hover:text-gray-400"><img src="{% static 'images/fx.png' %}" alt="My Logo"  class="w-16"></a>
+            </li>
+    
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'home' %}" class="text-white hover:text-gray-400">Home</a></li>
+                <li><a href="{% url 'api_keys' %}" class="text-white hover:text-gray-400">API Keys</a></li>
+    
+                <!-- Dropdown for Services with Click Event -->
+                <li class="relative">
+                    <button id="servicesButton" class="text-white flex items-center space-x-2 hover:text-gray-400 focus:outline-none">
+                        <span>Services</span>
+                        <svg id="arrowIcon" class="w-4 h-4 transition-transform transform" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <ul id="servicesDropdown" class="absolute hidden bg-gray-700 mt-2 p-2 rounded-lg w-40 shadow-lg">
+                        <li><a href="{% url 'omdb_search' %}" class="text-white hover:text-gray-400 block px-4 py-2">OMDB Search</a></li>
+                        <li><a href="#" class="text-white hover:text-gray-400 block px-4 py-2">WeatherAPI</a></li>
+                    </ul>
+                </li>
+    
+                <li><a href="{% url 'user_profile' %}" class="text-white hover:text-gray-400">Profile</a></li>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="text-white hover:text-gray-400">Logout</button>
+                </form>
+            {% else %}
+                <li><a href="{% url 'login' %}" class="text-white hover:text-gray-400">Login</a></li>
+                <li><a href="{% url 'register' %}" class="text-white hover:text-gray-400">Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script>
+        document.getElementById("servicesButton").addEventListener("click", function () {
+            const dropdown = document.getElementById("servicesDropdown");
+            const arrowIcon = document.getElementById("arrowIcon");
+    
+            dropdown.classList.toggle("hidden");
+            arrowIcon.classList.toggle("rotate-180");
+        });
+    </script>
+</body>
+</html>

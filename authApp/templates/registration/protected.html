@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Protected Page{% endblock %}
+
+{% block content %}
+        <h2>Protected Page</h2>
+        <p>Welcome to the protected page, {{ user.username }}!</p>
+        <p>This page is only accessible to authenticated users.</p>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+        <p><a href="{% url 'home' %}"  class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Go back to Home</a></p>
+        {% endblock %}
