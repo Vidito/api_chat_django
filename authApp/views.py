@@ -29,7 +29,7 @@ def register_view(request):
             password = form.cleaned_data.get("password")
             user = User.objects.create_user(username=username, password=password)
             login(request, user)
-            return redirect('home')
+            return redirect('user_profile')
     else:
         form = RegisterForm()
     return render(request, 'accounts/register.html', {'form':form})
@@ -57,9 +57,8 @@ def logout_view(request):
     else:
         return redirect('home')
 
-# Home View
-# Using the decorator 
-@login_required
+
+
 def home_view(request):
     return render(request, 'auth1_app/home.html')
 

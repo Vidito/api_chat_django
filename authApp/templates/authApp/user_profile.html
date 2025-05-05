@@ -1,23 +1,105 @@
 {% extends 'base.html' %}
 
-{% block title %}User Profile{% endblock %}
+{% block title %}User Profile - API Hub{% endblock %}
 
 {% block content %}
-    <h2 class="text-2xl font-bold mb-4">User Profile</h2>
+<div class="bg-white p-8 rounded-xl shadow-md">
+    <div class="flex items-center mb-8">
+        <div class="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+            <i data-feather="user" class="h-8 w-8 text-indigo-600"></i>
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">{{ user.username }}</h2>
+            <p class="text-gray-600">Member since {{ user.date_joined|date:"F j, Y" }}</p>
+        </div>
+    </div>
 
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p> {# Assuming email is available on the User model #}
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <i data-feather="user" class="h-5 w-5 mr-2 text-indigo-600"></i>
+            Personal Information
+        </h3>
+        <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-500">Username</p>
+                    <p class="font-medium">{{ user.username }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Email</p>
+                    <p class="font-medium">{{ user.email|default:"Not provided" }}</p>
+                </div>
+                {% if user.first_name or user.last_name %}
+                <div>
+                    <p class="text-sm text-gray-500">Name</p>
+                    <p class="font-medium">{{ user.first_name }} {{ user.last_name }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
-    <h3 class="text-lg font-bold my-4" >API Keys</h3>
-
-    {% if user_api_keys %}
-        <p><strong>OMDB API Key:</strong> {{ user_api_keys.decrypted_omdb_api_key|default:"Not set" }}</p>
-        <p><strong>WeatherAPI API Key:</strong> {{ user_api_keys.decrypted_weatherapi_api_key|default:"Not set" }}</p>
-        {# Add other API keys here as needed #}
-    {% else %}
-        <p>No API keys have been saved for this user yet.</p>
-        <p><a href="{% url 'api_keys' %}">Add your API keys</a></p> {# Link to your API key setting page #}
-    {% endif %}
-
-    {# You can add more user information here if needed #}
+    <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+            <i data-feather="key" class="h-5 w-5 mr-2 text-indigo-600"></i>
+            API Keys
+        </h3>
+        
+        {% if user_api_keys %}
+            <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center mb-1">
+                            <i data-feather="film" class="h-4 w-4 mr-2 text-gray-500"></i>
+                            <span class="text-sm text-gray-500">OMDB API Key</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="font-mono bg-gray-100 text-gray-800 px-3 py-1 rounded border border-gray-300 flex-grow">
+                                {% if user_api_keys.decrypted_omdb_api_key %}
+                                    <span class="font-medium">••••••••••</span>{{ user_api_keys.decrypted_omdb_api_key|slice:"-4:" }}
+                                {% else %}
+                                    Not set
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center mb-1">
+                            <i data-feather="cloud" class="h-4 w-4 mr-2 text-gray-500"></i>
+                            <span class="text-sm text-gray-500">WeatherAPI Key</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="font-mono bg-gray-100 text-gray-800 px-3 py-1 rounded border border-gray-300 flex-grow">
+                                {% if user_api_keys.decrypted_weatherapi_api_key %}
+                                    <span class="font-medium">••••••••••</span>{{ user_api_keys.decrypted_weatherapi_api_key|slice:"-4:" }}
+                                {% else %}
+                                    Not set
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <a href="{% url 'api_keys' %}" class="inline-flex items-center px-4 py-2 border border-indigo-600 text-sm font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <i data-feather="edit" class="h-4 w-4 mr-2"></i>
+                        Update API Keys
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+                    <i data-feather="key" class="h-8 w-8 text-gray-400"></i>
+                </div>
+                <p class="text-gray-600 mb-4">You haven't added any API keys yet.</p>
+                <a href="{% url 'api_keys' %}" class="inline-flex items-center px-5 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i data-feather="plus" class="h-4 w-4 mr-2"></i>
+                    Add API Keys
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

@@ -1,47 +1,128 @@
 {% extends 'base.html' %}
 
-{% block title %}Weather Search{% endblock %} {# Keep the title #}
+{% block title %}Weather Search - API Hub{% endblock %}
 
 {% block content %}
-    {# Change the heading to reflect weather search #}
-    <h1 class="text-3xl font-bold mb-4">Search City for Weather</h1>
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Weather Search</h1>
+    <p class="text-gray-600">Get current weather information for any city worldwide.</p>
+</div>
 
-    {# Keep the error message display block as is #}
-    {% if error_message %}
-      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        {{ error_message }}
-      </div>
-    {% endif %}
+{% if error_message %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-lg mb-6 flex items-center" role="alert">
+        <i data-feather="alert-circle" class="h-5 w-5 mr-3"></i>
+        <span>{{ error_message }}</span>
+    </div>
+{% endif %}
 
-    {# Keep the form block structure - assumes 'form' context variable is a weather search form #}
-    <form method="post" class="mb-4 bg-gray-100 p-4 rounded-lg shadow-md">
-      {% csrf_token %}
-      {{ form.as_p }} {# This will render your weather search form fields #}
-      <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Search</button>
+<div class="bg-white p-6 rounded-xl shadow-md mb-8">
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ field.label }}{% if field.field.required %} *{% endif %}
+                </label>
+                {% if field.help_text %}
+                    <p class="text-xs text-gray-500 mb-1">{{ field.help_text }}</p>
+                {% endif %}
+                {{ field.errors }}
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    {{ field }}
+                </div>
+            </div>
+        {% endfor %}
+        <div class="pt-2">
+            <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 flex items-center justify-center">
+                <i data-feather="search" class="h-4 w-4 mr-2"></i>
+                Get Weather
+            </button>
+        </div>
     </form>
+</div>
 
-    {# Change the condition to check if weather_data exists #}
-    {% if results %}
-      {# Change the heading to indicate what's being displayed #}
-      <h2 class="text-2xl font-bold mb-4">Current Weather in {{ results.location.name }}</h2> {# Display city name from data #}
-
-      {# Display the weather details #}
-      <div class="weather-results">
-        <p><strong>Temperature:</strong> {{ results.current.temp_c }}°C</p> {# Access temperature in Celsius #}
-        <p><strong>Condition:</strong> {{ results.current.condition.text }}</p> {# Access weather condition text #}
-        <p><strong>Humidity:</strong> {{ results.current.humidity }}%</p> {# Access humidity #}
-
-        {# Optionally display the weather icon #}
-        {% if results.current.condition.icon %}
-            {# WeatherAPI provides relative URLs, prepend the scheme #}
-            <img src="https:{{ results.current.condition.icon }}" alt="{{ results.current.condition.text }} icon" class="w-16 h-16">
-        {% endif %}
-
-      </div>
-
-    {# Update the "No results found" message and condition #}
-    {% elif request.method == 'POST' and not error_message %}
+{% if results %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold">{{ results.location.name }}</h2>
+                    <p class="text-blue-100">{{ results.location.region }}, {{ results.location.country }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm">{{ results.location.localtime }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div class="flex items-center mb-4 md:mb-0">
+                    {% if results.current.condition.icon %}
+                        <img src="https:{{ results.current.condition.icon }}" alt="{{ results.current.condition.text }}" class="w-20 h-20">
+                    {% endif %}
+                    <div class="ml-4">
+                        <div class="text-4xl font-bold text-gray-900">{{ results.current.temp_c }}°C</div>
+                        <div class="text-gray-600">{{ results.current.condition.text }}</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="text-sm text-gray-500 mb-1 flex items-center justify-center">
+                            <i data-feather="droplet" class="h-3 w-3 mr-1"></i>
+                            Humidity
+                        </div>
+                        <div class="font-semibold">{{ results.current.humidity }}%</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="text-sm text-gray-500 mb-1 flex items-center justify-center">
+                            <i data-feather="wind" class="h-3 w-3 mr-1"></i>
+                            Wind
+                        </div>
+                        <div class="font-semibold">{{ results.current.wind_kph }} km/h</div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="text-sm text-gray-500 mb-1 flex items-center justify-center">
+                            <i data-feather="thermometer" class="h-3 w-3 mr-1"></i>
+                            Feels Like
+                        </div>
+                        <div class="font-semibold">{{ results.current.feelslike_c }}°C</div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if results.forecast %}
+                <div class="mt-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Forecast</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        {% for day in results.forecast.forecastday %}
+                            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                                <div class="text-sm font-medium text-gray-700 mb-2">
+                                    {{ day.date|slice:"5:" }}
+                                </div>
+                                {% if day.day.condition.icon %}
+                                    <img src="https:{{ day.day.condition.icon }}" alt="{{ day.day.condition.text }}" class="w-12 h-12 mx-auto mb-2">
+                                {% endif %}
+                                <div class="flex justify-center space-x-2 text-sm">
+                                    <span class="font-medium">{{ day.day.maxtemp_c }}°</span>
+                                    <span class="text-gray-500">{{ day.day.mintemp_c }}°</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% elif request.method == 'POST' and not error_message %}
+    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
+            <i data-feather="cloud-off" class="h-8 w-8 text-gray-400"></i>
+        </div>
         <p class="text-gray-600">Could not retrieve weather data for that city. Please check the city name or your API key settings.</p>
-    {% endif %}
-
+    </div>
+{% endif %}
 {% endblock %}
