@@ -14,9 +14,12 @@ from django.contrib.auth.models import User
 from .forms import RegisterForm
 from .models import UserAPIKeys
 from django.contrib import messages
-from .forms import APIKeyForm, OMDBSearchForm # Import the new form
+from .forms import APIKeyForm, OMDBSearchForm, WeatherSearchForm
 import requests
+from cryptography.fernet import Fernet
+from django.conf import settings
 
+f = Fernet(settings.ENCRYPTION_KEY)
 
 def register_view(request):
     if request.method == "POST":
@@ -80,7 +83,14 @@ def api_key_view(request):
     if request.method == 'POST':
         form = APIKeyForm(request.POST, instance=user_api_keys)
         if form.is_valid():
-            form.save()
+            api_key = form.save(commit=False)
+            # Encrypt the API keys before saving them
+            if form.cleaned_data['omdb_api_key']:
+                api_key.omdb_api_key = f.encrypt(form.cleaned_data['omdb_api_key'].encode()).decode('utf-8')
+            if form.cleaned_data['weatherapi_api_key']:
+                api_key.weatherapi_api_key = f.encrypt(form.cleaned_data['weatherapi_api_key'].encode()).decode('utf-8')
+            api_key.save()
+
             messages.success(request, 'API keys saved successfully!')
             return redirect('home')  # Or wherever you want to redirect
         else:
@@ -106,7 +116,7 @@ def omdb_search_view(request):
             try:
                 # Retrieve the user's OMDB API key
                 user_api_keys = request.user.api_keys
-                omdb_key = user_api_keys.omdb_api_key
+                omdb_key = user_api_keys.decrypted_omdb_api_key
 
                 if not omdb_key:
                     error_message = "You have not saved an OMDB API key yet. Please add it on the API Keys page."
@@ -130,6 +140,47 @@ def omdb_search_view(request):
                 error_message = f"An unexpected error occurred: {e}"
 
     return render(request, 'authApp/omdb_search.html', {
+        'form': form,
+        'results': results,
+        'error_message': error_message
+    })
+
+
+@login_required
+def weather_search_view(request):
+    form = WeatherSearchForm()
+    results = None
+    error_message = None
+    weatherapi_key = None
+
+    if request.method == 'POST':
+        form = WeatherSearchForm(request.POST)
+        if form.is_valid():
+            search_term = form.cleaned_data['search_term']
+
+            try:
+                # Retrieve the user's weather API key
+                user_api_keys = request.user.api_keys
+                weatherapi_key = user_api_keys.decrypted_weatherapi_api_key
+
+                if not weatherapi_key:
+                    error_message = "You have not saved a WeatherAPI API key yet. Please add it on the API Keys page."
+                else:
+                    # Make the API call to OMDB
+                    weatherapi_url = f"http://api.weatherapi.com/v1/current.json?key={weatherapi_key}&q={search_term}"
+                    response = requests.get(weatherapi_url)
+                    response.raise_for_status() # Raise an exception for bad status codes (4xx or 5xx)
+                    results = response.json()
+
+
+            except UserAPIKeys.DoesNotExist:
+                error_message = "Please save your API keys on the API Keys page."
+            except requests.exceptions.RequestException as e:
+                error_message = f"Error connecting to WeatherAPI API: {e}"
+            except Exception as e:
+                error_message = f"An unexpected error occurred: {e}"
+
+    return render(request, 'authApp/weather_search.html', {
         'form': form,
         'results': results,
         'error_message': error_message

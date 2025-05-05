@@ -11,12 +11,12 @@
     <h3 class="text-lg font-bold my-4" >API Keys</h3>
 
     {% if user_api_keys %}
-        <p><strong>OMDB API Key:</strong> {{ user_api_keys.omdb_api_key|default:"Not set" }}</p>
-        <p><strong>WeatherAPI API Key:</strong> {{ user_api_keys.weatherapi_api_key|default:"Not set" }}</p>
+        <p><strong>OMDB API Key:</strong> {{ user_api_keys.decrypted_omdb_api_key|default:"Not set" }}</p>
+        <p><strong>WeatherAPI API Key:</strong> {{ user_api_keys.decrypted_weatherapi_api_key|default:"Not set" }}</p>
         {# Add other API keys here as needed #}
     {% else %}
         <p>No API keys have been saved for this user yet.</p>
-        <p><a href="{% url 'api_key_settings' %}">Add your API keys</a></p> {# Link to your API key setting page #}
+        <p><a href="{% url 'api_keys' %}">Add your API keys</a></p> {# Link to your API key setting page #}
     {% endif %}
 
     {# You can add more user information here if needed #}

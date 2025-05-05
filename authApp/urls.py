@@ -11,6 +11,7 @@ urlpatterns = [
     path('protected/', views.ProtectedView.as_view(), name='protected'),
     path('api_keys/', views.api_key_view, name='api_keys'),  # Add this line
     path('search/omdb/', views.omdb_search_view, name='omdb_search'), # Add this line
+    path('search/weather/', views.weather_search_view, name='weather_search'), # Add this line
 
 
 ]

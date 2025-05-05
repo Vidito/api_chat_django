@@ -36,3 +36,6 @@ class APIKeyForm(forms.ModelForm):
 # Add a search form
 class OMDBSearchForm(forms.Form):
     search_term = forms.CharField(label='Search Movie Title', max_length=100, required=True)
+
+class WeatherSearchForm(forms.Form):
+    search_term = forms.CharField(label='Enter city name', max_length=100, required=True)

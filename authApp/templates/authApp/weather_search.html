@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Weather Search{% endblock %} {# Keep the title #}
+
+{% block content %}
+    {# Change the heading to reflect weather search #}
+    <h1 class="text-3xl font-bold mb-4">Search City for Weather</h1>
+
+    {# Keep the error message display block as is #}
+    {% if error_message %}
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        {{ error_message }}
+      </div>
+    {% endif %}
+
+    {# Keep the form block structure - assumes 'form' context variable is a weather search form #}
+    <form method="post" class="mb-4 bg-gray-100 p-4 rounded-lg shadow-md">
+      {% csrf_token %}
+      {{ form.as_p }} {# This will render your weather search form fields #}
+      <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Search</button>
+    </form>
+
+    {# Change the condition to check if weather_data exists #}
+    {% if results %}
+      {# Change the heading to indicate what's being displayed #}
+      <h2 class="text-2xl font-bold mb-4">Current Weather in {{ results.location.name }}</h2> {# Display city name from data #}
+
+      {# Display the weather details #}
+      <div class="weather-results">
+        <p><strong>Temperature:</strong> {{ results.current.temp_c }}°C</p> {# Access temperature in Celsius #}
+        <p><strong>Condition:</strong> {{ results.current.condition.text }}</p> {# Access weather condition text #}
+        <p><strong>Humidity:</strong> {{ results.current.humidity }}%</p> {# Access humidity #}
+
+        {# Optionally display the weather icon #}
+        {% if results.current.condition.icon %}
+            {# WeatherAPI provides relative URLs, prepend the scheme #}
+            <img src="https:{{ results.current.condition.icon }}" alt="{{ results.current.condition.text }} icon" class="w-16 h-16">
+        {% endif %}
+
+      </div>
+
+    {# Update the "No results found" message and condition #}
+    {% elif request.method == 'POST' and not error_message %}
+        <p class="text-gray-600">Could not retrieve weather data for that city. Please check the city name or your API key settings.</p>
+    {% endif %}
+
+{% endblock %}
