@@ -29,7 +29,7 @@ ENCRYPTION_KEY = os.getenv('ENCRYPTION_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['insightapi.onrender.com', '127.0.0.1']  # Change this to your domain or IP address in production
 
 
 # Application definition
