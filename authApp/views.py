@@ -43,7 +43,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)  
         if user is not None:  
             login(request, user)  
-            next_url = request.POST.get('next') or request.GET.get('next') or 'home'  
+            next_url = request.POST.get('next') or request.GET.get('next') or 'user_profile'  
             return redirect(next_url) 
         else:
             error_message = "Invalid credentials"  
