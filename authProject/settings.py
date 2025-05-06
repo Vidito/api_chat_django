@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv # Consider using python-dotenv for local development
-import base64
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,12 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
-ENCRYPTION_KEY =  base64.urlsafe_b64decode(os.getenv('ENCRYPTION_KEY'))
+ENCRYPTION_KEY =  os.getenv('ENCRYPTION_KEY').encode('utf-8')
+print(ENCRYPTION_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
-ALLOWED_HOSTS = ['insightapi.onrender.com', '127.0.0.1']  # Change this to your domain or IP address in production
+ALLOWED_HOSTS = ['*']  # Change this to your domain or IP address in production
 
 
 # Application definition
