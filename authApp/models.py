@@ -13,6 +13,7 @@ class UserAPIKeys(models.Model):
     omdb_api_key = models.CharField(max_length=100, blank=True, null=True, validators=[MaxLengthValidator(100)]) # Store max 100 character API keys. Adjust max_length as necessary.
     weatherapi_api_key = models.CharField(max_length=100, blank=True, null=True, validators=[MaxLengthValidator(100)])
     # Add other service keys as needed
+    objects = models.Manager()
 
     @property
     def decrypted_omdb_api_key(self):

@@ -18,6 +18,7 @@ from .forms import APIKeyForm, OMDBSearchForm, WeatherSearchForm
 import requests
 from cryptography.fernet import Fernet
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 f = Fernet(settings.ENCRYPTION_KEY)
 
@@ -77,7 +78,8 @@ def api_key_view(request):
     try:
         user_api_keys = request.user.api_keys
     except UserAPIKeys.DoesNotExist:
-         user_api_keys = UserAPIKeys(user=request.user)
+        user_api_keys = UserAPIKeys(user=request.user)
+        user_api_keys.save()
 
     if request.method == 'POST':
         form = APIKeyForm(request.POST, instance=user_api_keys)
@@ -91,11 +93,25 @@ def api_key_view(request):
             api_key.save()
 
             messages.success(request, 'API keys saved successfully!')
-            return redirect('home')  # Or wherever you want to redirect
+            return redirect('user_profile')
         else:
-             messages.error(request, 'There was an error saving your API keys.  Please check the form.')
+            messages.error(request, 'There was an error saving your API keys. Please check the form.')
     else:
-        form = APIKeyForm(instance=user_api_keys)
+    # Decrypt the values for display
+        initial_data = {}
+        if user_api_keys.omdb_api_key:
+            try:
+                initial_data['omdb_api_key'] = f.decrypt(user_api_keys.omdb_api_key.encode()).decode()
+            except Exception:
+                initial_data['omdb_api_key'] = ''  # fallback in case of bad encryption
+        if user_api_keys.weatherapi_api_key:
+            try:
+                initial_data['weatherapi_api_key'] = f.decrypt(user_api_keys.weatherapi_api_key.encode()).decode()
+            except Exception:
+                initial_data['weatherapi_api_key'] = ''  # fallback
+
+        form = APIKeyForm(initial=initial_data, instance=user_api_keys)
+
 
     return render(request, 'authApp/api_key.html', {'form': form})
 
